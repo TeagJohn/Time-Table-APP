@@ -1,0 +1,38 @@
+#student convert from student.json
+#listofsubject convert from timetable.json
+
+#Create 4 tables:
+CREATE TABLE students( `student_id` INT(11) NOT NULL , `student_name` VARCHAR(100) NOT NULL , `DOB` VARCHAR(100) NOT NULL , `student_class` VARCHAR(100) NOT NULL , PRIMARY KEY (`student_id`)) ENGINE = InnoDB;
+
+CREATE TABLE listsubject ( `student_id` INT(11) NOT NULL , `subject_id` VARCHAR(100) NOT NULL , `class_id` VARCHAR(100) NOT NULL , `type` VARCHAR(100) NOT NULL , INDEX (`student_id`), INDEX (`subject_id`)) ENGINE = InnoDB;
+
+CREATE TABLE subject ( `subject_id` VARCHAR(100) NOT NULL , `subject_name` VARCHAR(100) NOT NULL , `credit` INT(8) NOT NULL , PRIMARY KEY (`subject_id`)) ENGINE = InnoDB;
+
+CREATE TABLE class ( `subject_id` VARCHAR(100) NOT NULL , `class_id` VARCHAR(100) NOT NULL , `teacher_name` VARCHAR(100) NOT NULL , `number_of_students` INT(8) NOT NULL , `time` VARCHAR(100) NOT NULL , `weekday` DOUBLE NOT NULL , `lesson` VARCHAR(100) NOT NULL , `place` VARCHAR(100) NOT NULL , `type` VARCHAR(100) NOT NULL , INDEX (`subject_id`)) ENGINE = InnoDB;
+
+#Insert, Update table:
+/* students*/
+INSERT INTO students
+SELECT DISTINCT student_id, student_name, DOB, class_name FROM student;
+/* subject */
+INSERT INTO subject SELECT DISTINCT subject, subject_name, credit FROM listofsubject;
+/* class */
+INSERT INTO class SELECT subject, subject_id, teacher_name, number_of_students, time, weekday,lesson,place,note FROM listofsubject;
+/* listsubject */
+INSERT INTO listsubject
+SELECT student_id, subject_id, subject_id, `group` FROM student;
+UPDATE listsubject
+SET subject_id =( SELECT DISTINCT subject FROM listofsubject WHERE `class_id` = subject_id);
+
+#Match 
+ALTER TABLE `listsubject` ADD CONSTRAINT `fk2` FOREIGN KEY (`subject_id`) REFERENCES `subject`(`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `listsubject` ADD CONSTRAINT `fk1` FOREIGN KEY (`student_id`) REFERENCES `students`(`student_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `class` ADD CONSTRAINT `fk3` FOREIGN KEY (`subject_id`) REFERENCES `subject`(`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+#Lọc data tùy từng kỳ học sẽ khác nhau:
+DELETE FROM `class` WHERE `place` like "Học Online"
+INSERT INTO `listsubject `
+SELECT `student_id`,`subject_id`,`class_id`,"CL" FROM `listsubject` WHERE type != "CL"
+

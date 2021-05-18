@@ -1,0 +1,6 @@
+pip install scrapy
+    dowload file Twisted in "https://www.lfd.uci.edu/~gohlke/pythonlibs/"
+    error : install Twisted version == version python (pip install <path to file Twisted>)
+move to path you want to create project (use "cd" in win)
+scrapy startproject <name project>
+scrapy crawl <name (in crawl file.py)> -o <name file you want to create>
